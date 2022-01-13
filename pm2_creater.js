@@ -7,9 +7,11 @@ const exec = require('child_process').exec;
 const  pm2LoaderRow = {
 	name: 'tgSpamer',
 	// script: '/var/www/node/site/bin/www',
-	script: '/srv/www/api.waba.bot/nodejs/thSpamer/bin/www',
+	// script: '/srv/www/api.waba.bot/nodejs/thSpamer/bin/www',
+	script: '/var/www/node/tgSpamer',
 	// interpreter: "/usr/local/n/versions/node/12.13.0/bin/node",
-	interpreter: "/home/botcorp/.nvm/versions/node/v12.18.3/bin/node",
+	// interpreter: "/home/botcorp/.nvm/versions/node/v12.18.3/bin/node",
+	interpreter: "/usr/bin/node",
 	args: "--disable-trace",
 	node_args: "--trace-warnings",
 };
