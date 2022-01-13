@@ -11,7 +11,8 @@ const  pm2LoaderRow = {
 	script: '/var/www/node/tgSpamer',
 	// interpreter: "/usr/local/n/versions/node/12.13.0/bin/node",
 	// interpreter: "/home/botcorp/.nvm/versions/node/v12.18.3/bin/node",
-	interpreter: "/usr/bin/node",
+	interpreter: "~/.nvm/versions/node/v16.13.2/bin/node",
+	// interpreter: "/usr/bin/node",
 	args: "--disable-trace",
 	node_args: "--trace-warnings",
 };
