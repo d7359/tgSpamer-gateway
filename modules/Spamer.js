@@ -6,6 +6,7 @@ const TgAccounts = require('../controllers/TgAccountsController')
 const TgContacts = require('../controllers/tgContactsController')
 const sendTasksController = require('../controllers/sendTasksController')
 const callbackTasksController = require('../controllers/callbackTasksController')
+const config = require('../config.json')
 
 
 class Spammer{
@@ -652,7 +653,7 @@ class Spammer{
 	sendRequest(data){
 		return new Promise(resolve => {
 			return request({
-				url:'https://go.geeko.tech/mailing_callbacks',
+				url:'http://'+config.ip+':3024mailing_callbacks',
 				method:'POST',
 				headers:{'Content-Type':'application/json'},
 				body:JSON.stringify(data)
