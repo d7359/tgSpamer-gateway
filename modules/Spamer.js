@@ -21,8 +21,8 @@ class Spammer{
 		await this.initAccounts()
 
 		// await this.sendMessage(data)
-		 this.checkSendTasks(data)
-		 this.checkCallbackTasks(data)
+		 this.checkSendTasks()
+		 this.checkCallbackTasks()
 
 
 	}
