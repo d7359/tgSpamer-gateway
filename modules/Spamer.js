@@ -19,18 +19,6 @@ class Spammer{
 	async initSpammer(){
 		await this.initAccounts()
 
-		const data = {
-			phone:'+77028596374',
-			message:'Тест',
-			user:{
-				id: '473465979',
-				access_hash: '16828407304179032492',
-				first_name: 'Я',
-				username: 'diman7359',
-				phone: '77472104396',
-			}
-		}
-
 		// await this.sendMessage(data)
 		 this.checkSendTasks(data)
 		 this.checkCallbackTasks(data)
@@ -39,8 +27,11 @@ class Spammer{
 	}
 
 	parseContactsAll(req, callback){
+
+		const contacts = []
+
 		async.eachSeries(Object.keys(this.accounts), (phone, phoneCallback)=>{
-				this.parseContacts(phone, req.body, result=>{
+				this.parseContacts(phone, req.body, contacts, result=>{
 					console.log(result)
 
 					return setTimeout(()=>{phoneCallback()}, 1000)
@@ -51,11 +42,24 @@ class Spammer{
 					console.error(err)
 				}
 
-				return callback({status:'ok'})
+				return request({
+					url:'http://'+config.ip+':3024/save_contacts',
+					method:'POST',
+					headers:{'Content-Type':'application/json'},
+					body:JSON.stringify({contacts, parsingId:req.body.parsingId, project:req.body.project})
+				}, (error,  httpResponse, body)=>{
+					console.error(error)
+					// console.log(httpResponse)
+					console.log(body)
+
+					return callback({status:'ok'})
+				})
+
+
 			})
 	}
 
-	async parseContacts(phone, data, callback){
+	async parseContacts(phone, data, globalContacts, callback){
 
 		const invite = await this.accounts[phone].call('messages.importChatInvite',{hash:data.hash})
 		// const invite = await API.call('messages.importChatInvite',{hash:'lcHhKERxZg4wOWYy'})
@@ -83,6 +87,10 @@ class Spammer{
 				_:'inputUserSelf'
 			}
 		})
+
+		if(globalContacts.length===0){
+			globalContacts = [...chat.users]
+		}
 
 
 		const contactIds = chat.users.map(el=>el.id)
