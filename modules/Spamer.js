@@ -29,11 +29,15 @@ class Spammer{
 
 	parseContactsAll(req, callback){
 
-		const contacts = []
+		let contacts = []
 
 		async.eachSeries(Object.keys(this.accounts), (phone, phoneCallback)=>{
-				this.parseContacts(phone, req.body, contacts, result=>{
+				this.parseContacts(phone, req.body, result=>{
 					console.log(result)
+
+					if(contacts.length===0){
+						contacts = result.contacts
+					}
 
 					return setTimeout(()=>{phoneCallback()}, 1000)
 				})
@@ -60,7 +64,7 @@ class Spammer{
 			})
 	}
 
-	async parseContacts(phone, data, globalContacts, callback){
+	async parseContacts(phone, data, callback){
 
 		const invite = await this.accounts[phone].call('messages.importChatInvite',{hash:data.hash})
 		// const invite = await API.call('messages.importChatInvite',{hash:'lcHhKERxZg4wOWYy'})
@@ -88,10 +92,6 @@ class Spammer{
 				_:'inputUserSelf'
 			}
 		})
-
-		if(globalContacts.length===0){
-			globalContacts = [...chat.users]
-		}
 
 
 		const contactIds = chat.users.map(el=>el.id)
@@ -142,7 +142,7 @@ class Spammer{
 
 				console.log(result)
 
-				return callback({status: 'ok'})
+				return callback({status: 'ok', contacts})
 			})
 
 		})
