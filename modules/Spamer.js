@@ -653,7 +653,7 @@ class Spammer{
 	sendRequest(data){
 		return new Promise(resolve => {
 			return request({
-				url:'http://'+config.ip+':3024mailing_callbacks',
+				url:'http://'+config.ip+':3024/mailing_callbacks',
 				method:'POST',
 				headers:{'Content-Type':'application/json'},
 				body:JSON.stringify(data)
