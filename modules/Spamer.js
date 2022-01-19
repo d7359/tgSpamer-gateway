@@ -20,7 +20,6 @@ class Spammer{
 	async initSpammer(){
 		await this.initAccounts()
 
-		// await this.sendMessage(data)
 		 this.checkSendTasks()
 		 this.checkCallbackTasks()
 
@@ -67,7 +66,6 @@ class Spammer{
 	async parseContacts(phone, data, callback){
 
 		const invite = await this.accounts[phone].call('messages.importChatInvite',{hash:data.hash})
-		// const invite = await API.call('messages.importChatInvite',{hash:'lcHhKERxZg4wOWYy'})
 
 		console.log('invite:',invite)
 
@@ -82,9 +80,8 @@ class Spammer{
 		if(invite.chats[0]._==='channel') {
 			return callback({status:'error', msg:'Это канал'})
 		}
-		console.log(chat.full_chat.participants.participants)
 
-// return;
+
 		const deleteChat = await this.accounts[phone].call('messages.deleteChatUser', {
 			revoke_history: true,
 			chat_id:invite.chats[0].id,
@@ -104,8 +101,6 @@ class Spammer{
 
 			const oldContacts = result.map(el=>el.id)
 
-			// const diffContacts = contactIds.filter(el => !oldContacts.includes(el))
-
 			for(const user of chat.users){
 
 				if(oldContacts.includes(user.id)){
@@ -122,19 +117,7 @@ class Spammer{
 					tg_account:phone
 				})
 
-				// const addContact = await API.call('contacts.addContact', {
-				// 	id	:{
-				// 		_: 'inputUser',
-				// 		user_id: user.id,
-				// 		access_hash: user.access_hash
-				// 	},
-				// 	first_name:	user.first_name || '',
-				// 	last_name:	user.last_name || '',
-				// 	phone:	user.phone ||''
-				// })
-				//
-				// console.log('addContact:',addContact)
-				// const resultOfSendMessage = await API.call()
+
 			}
 
 			return TgContacts.createMany(contacts, result=>{
@@ -146,9 +129,6 @@ class Spammer{
 			})
 
 		})
-
-
-
 
 	}
 
@@ -172,41 +152,7 @@ class Spammer{
 
 
 				await this.initAccount(account)
-				// this.accounts[account.phone] = new API(account)
-				//
-				// const user = await this.getUser(account.phone);
-				//
-				// if(!user){
-				// 	continue;
-				// }
-				//
-				// this.accounts[account.phone].mtproto.updates.on('updatesTooLong', (updateInfo) => {
-				// 	console.log('updatesTooLong:', updateInfo);
-				// });
-				//
-				// this.accounts[account.phone].mtproto.updates.on('updateShortMessage', (updateInfo) => {
-				// 	console.log('updateShortMessage:', updateInfo);
-				// });
-				//
-				// this.accounts[account.phone].mtproto.updates.on('updateShortChatMessage', (updateInfo) => {
-				// 	console.log('updateShortChatMessage:', updateInfo);
-				// });
-				//
-				// this.accounts[account.phone].mtproto.updates.on('updateShort', (updateInfo) => {
-				// 	console.log('updateShort:', updateInfo);
-				// });
-				//
-				// this.accounts[account.phone].mtproto.updates.on('updatesCombined', (updateInfo) => {
-				// 	console.log('updatesCombined:', updateInfo);
-				// });
-				//
-				// this.accounts[account.phone].mtproto.updates.on('updates', async (updateInfo) => {
-				// 	console.log('updates:', updateInfo);
-				// });
-				//
-				// this.accounts[account.phone].mtproto.updates.on('updateShortSentMessage', (updateInfo) => {
-				// 	console.log('updateShortSentMessage:', updateInfo);
-				// });
+
 			}
 
 			return resolve()
@@ -303,7 +249,7 @@ class Spammer{
 		}
 
 		return res.json({status:'ok'})
-		// this.accounts
+
 
 	}
 
@@ -474,19 +420,6 @@ class Spammer{
 			const failure_ids = []
 			const callbackTasks = []
 
-			// const invite = await this.accounts['+77028596374'].call('messages.importChatInvite',{hash:'hnIbL0XxSBliZDE6'})
-			// // const invite = await API.call('messages.importChatInvite',{hash:'lcHhKERxZg4wOWYy'})
-			//
-			// console.log('invite:',invite)
-			//
-			// const deleteChat = await this.accounts['+77028596374'].call('messages.deleteChatUser', {
-			// 	revoke_history: true,
-			// 	// chat_id:invite.chats[0].id,
-			// 	chat_id:'671298884',
-			// 	user_id: {
-			// 		_:'inputUserSelf'
-			// 	}
-			// })
 
 			return async.eachSeries(tasks, (task, taskCallback)=>{
 					(async ()=>{
@@ -548,27 +481,20 @@ class Spammer{
 
 			const success_ids = []
 			const failure_ids = []
-			// const callbackTasks = []
 
 			return async.eachSeries(tasks, (task, taskCallback)=>{
 					(async ()=>{
 						let d = await this.sendRequest(task.data)
-
-						// const callbackTask = {
-						// 	data:task.data,
-						// 	execute_time: moment().format('YYYY-MM-DD HH:mm:ss')
-						// }
 
 						if(d.status==='ok'){
 							// callbackTask.sent = true
 							success_ids.push(task._id.toString())
 						}
 						else{
-							// callbackTask.sent = false
+
 							failure_ids.push(task._id.toString())
 						}
 
-						// callbackTasks.push(callbackTask)
 
 						return setTimeout(()=>{taskCallback()})
 					})();
@@ -584,10 +510,6 @@ class Spammer{
 					callbackTasksController.updateMany({_id:{$in:failure_ids}}, {status:'error'}, result=>{
 						console.log(result)
 					})
-
-					// callbackTasksController.createMany(callbackTasks, result=>{
-					// 	console.log(result)
-					// })
 
 
 					return resolve()
@@ -633,7 +555,6 @@ class Spammer{
 				},
 				message:	data.message,
 				random_id:	Math.ceil(Math.random() * 0xffffff) + Math.ceil(Math.random() * 0xffffff),
-				// phone:	user.phone ||''
 			})
 
 			console.log('sendMessageasd: ', addContact)

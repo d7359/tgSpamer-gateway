@@ -3,8 +3,6 @@ const mongoose = require('mongoose');
 const connect = mongoose.createConnection('mongodb://127.0.0.1:27017/tg_spammer', {
 	serverSelectionTimeoutMS: 5000,
 	useNewUrlParser: true,
-	// useCreateIndex: true,
-	// useFindAndModify: false,
 	useUnifiedTopology: true,
 });
 connect.once('open', () => {

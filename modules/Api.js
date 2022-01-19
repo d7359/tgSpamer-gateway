@@ -5,19 +5,14 @@ const { sleep } = require('@mtproto/core/src/utils/common');
 class API {
 	constructor(account) {
 
-		// this.mtproto = {}
+		this.mtproto = new MTProto({
+			api_id  : account.api_id,
+			api_hash: account.api_hash,
 
-		// for(const account of accounts) {
-
-			this.mtproto = new MTProto({
-				api_id  : account.api_id, //19632392,
-				api_hash: account.api_hash, //'7ced0607f42afe18904ec6398d047f9a',
-
-				storageOptions: {
-					path: path.resolve(__dirname, './data/'+account.api_id+'.json'),
-				},
-			});
-		// }
+			storageOptions: {
+				path: path.resolve(__dirname, './data/'+account.api_id+'.json'),
+			},
+		});
 	}
 
 	async call(method, params, options = {}) {
@@ -59,9 +54,5 @@ class API {
 		}
 	}
 }
-
-// const api = new API();
-//
-// module.exports = api;
 
 module.exports = API

@@ -17,7 +17,7 @@ router.get('/', (req, res)=>{
 })
 router.post('/create_account', (req, res)=>{
 
-	console.log(req)
+	console.log(req.body)
 
 	res.append('Access-Control-Allow-Origin', req.headers.origin)
 	res.append('Access-Control-Allow-Credentials','true')
