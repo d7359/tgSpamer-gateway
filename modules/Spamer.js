@@ -65,33 +65,282 @@ class Spammer{
 
 	async parseContacts(phone, data, callback){
 
-		const invite = await this.accounts[phone].call('messages.importChatInvite',{hash:data.hash})
+		let invite = false;
+		let chat_users = []
+
+		try {
+
+		invite = await this.accounts[phone].call('messages.importChatInvite',{hash:data.hash})
 
 		console.log('invite:',invite)
+		}
+		catch (e) {
+			console.log(e)
+
+			if(e.error_message && e.error_message ==='USER_ALREADY_PARTICIPANT'){
+				const checkChatInvite = await this.accounts[phone].call('messages.checkChatInvite', {
+					hash:data.hash,
+					// limit:10
+				})
+
+				console.log(checkChatInvite);
+
+
+				if(checkChatInvite.chat){
+					const leaveChannel = await this.accounts[phone].call('channels.leaveChannel', {
+						channel:{
+							_:'inputChannel',
+							channel_id:checkChatInvite.chat.id,
+							access_hash: checkChatInvite.chat.access_hash
+						}
+					})
+
+					return this.parseContacts(phone, data, callback)
+
+				}
+			}
+
+			const search = await this.accounts[phone].call('contacts.search', {
+				q:'@'+data.hash.replace('@',''),
+				limit:10
+			})
+
+			console.log(search);
+
+			if(search.chats.length===0){
+				return callback({status:'error', msg:'Ничего не найдено'})
+			}
+
+			const joinChannel = await this.accounts[phone].call('channels.joinChannel', {
+				channel: {
+					_:'inputChannel',
+					channel_id:search.chats[0].id,
+					access_hash:search.chats[0].access_hash
+				}
+			})
+
+			console.log('chat:', joinChannel)
+
+			const users = {}
+
+			const inputPeer = {
+				// _: 'inputPeerChannel',
+				_: 'inputPeerChannel',
+				// channel_id: channel.id,
+				channel_id: search.chats[0].id,
+				access_hash: search.chats[0].access_hash
+			};
+
+			console.log(inputPeer)
+
+			const LIMIT_COUNT = 1000
+			let offset = 0;
+			const allMessages = [];
+
+			let history = await this.accounts[phone].call('messages.getHistory', {
+				peer: inputPeer,
+				add_offset: offset,
+				limit: LIMIT_COUNT,
+			});
+
+			while(history.messages.length>0){
+
+				allMessages.push(...history.messages);
+
+				offset+=LIMIT_COUNT
+
+				history = await this.accounts[phone].call('messages.getHistory', {
+					peer: inputPeer,
+					add_offset: offset,
+					limit: LIMIT_COUNT,
+				});
+
+
+			}
+
+			for(const message of allMessages){
+				if(message._==='message'){
+					// console.log(message)
+
+					users[message.from_id.user_id] = {
+						_:'inputUserFromMessage',
+						peer: inputPeer,
+						msg_id: message.id,
+						user_id: message.from_id.user_id
+					}
+				}
+
+
+				if(message._==='messageService' && message.action && message.action._==='messageActionChatAddUser'){
+					// console.log(message)
+
+					users[message.from_id.user_id] = {
+						_:'inputUserFromMessage',
+						peer: inputPeer,
+						msg_id: message.id,
+						user_id: message.from_id.user_id
+					}
+				}
+
+
+				if(message._==='messageService' && message.action && message.action._==='messageActionChatJoinedByLink'){
+					// console.log(message)
+
+					users[message.from_id.user_id] = {
+						_:'inputUserFromMessage',
+						peer: inputPeer,
+						msg_id: message.id,
+						user_id: message.from_id.user_id
+					}
+				}
+			}
+
+			const getUsers = await this.accounts[phone].call('users.getUsers', {
+				id:Object.values(users)
+			})
+
+			console.log(getUsers);
+
+			chat_users = getUsers
+
+			const leaveChannel = await this.accounts[phone].call('channels.leaveChannel', {
+				channel:{
+					_:'inputChannel',
+					channel_id: search.chats[0].id,
+					access_hash: search.chats[0].access_hash
+				}
+			})
+
+		}
 
 		let chat = false
 
-		if(invite.chats[0]._==='chat') {
+		if(invite.chats && invite.chats[0]._==='chat') {
 			chat = await this.accounts[phone].call('messages.getFullChat', {chat_id: invite.chats[0].id})
 
 			console.log('chat:', chat)
+
+			chat_users = chat.users
+			const deleteChat = await this.accounts[phone].call('messages.deleteChatUser', {
+				revoke_history: true,
+				chat_id:invite.chats[0].id,
+				user_id: {
+					_:'inputUserSelf'
+				}
+			})
 		}
 
-		if(invite.chats[0]._==='channel') {
-			return callback({status:'error', msg:'Это канал'})
-		}
+		if(invite.chats  && invite.chats[0]._==='channel') {
+			const users = {}
+
+			const inputPeer = {
+				// _: 'inputPeerChannel',
+				_: 'inputPeerChannel',
+				// channel_id: channel.id,
+				channel_id: invite.chats[0].id,
+				access_hash: invite.chats[0].access_hash
+			};
+
+			console.log(inputPeer)
+
+			const LIMIT_COUNT = 1000
+			let offset = 0;
+			const allMessages = [];
+
+			let history = await this.accounts[phone].call('messages.getHistory', {
+				peer: inputPeer,
+				add_offset: offset,
+				limit: LIMIT_COUNT,
+			});
+
+			// console.log(firstHistoryResult)
+
+			// const historyCount = firstHistoryResult.count;
+			// const historyCount = firstHistoryResult.messages.length;
 
 
-		const deleteChat = await this.accounts[phone].call('messages.deleteChatUser', {
-			revoke_history: true,
-			chat_id:invite.chats[0].id,
-			user_id: {
-				_:'inputUserSelf'
+			// for (let offset = 0; offset < historyCount; offset += LIMIT_COUNT) {
+			while(history.messages.length>0){
+
+				allMessages.push(...history.messages);
+
+				offset+=LIMIT_COUNT
+
+				history = await this.accounts[phone].call('messages.getHistory', {
+					peer: inputPeer,
+					add_offset: offset,
+					limit: LIMIT_COUNT,
+				});
+
+
 			}
-		})
 
 
-		const contactIds = chat.users.map(el=>el.id)
+			for(const message of allMessages){
+				if(message._==='message'){
+					// console.log(message)
+
+					users[message.from_id.user_id] = {
+						_:'inputUserFromMessage',
+						peer: inputPeer,
+						msg_id: message.id,
+						user_id: message.from_id.user_id
+					}
+				}
+
+
+				if(message._==='messageService' && message.action && message.action._==='messageActionChatAddUser'){
+					// console.log(message)
+
+					users[message.from_id.user_id] = {
+						_:'inputUserFromMessage',
+						peer: inputPeer,
+						msg_id: message.id,
+						user_id: message.from_id.user_id
+					}
+				}
+
+
+				if(message._==='messageService' && message.action && message.action._==='messageActionChatJoinedByLink'){
+					// console.log(message)
+
+					users[message.from_id.user_id] = {
+						_:'inputUserFromMessage',
+						peer: inputPeer,
+						msg_id: message.id,
+						user_id: message.from_id.user_id
+					}
+				}
+			}
+
+			const getUsers = await this.accounts[phone].call('users.getUsers', {
+				id:Object.values(users)
+			})
+
+			console.log(getUsers);
+
+			chat_users = getUsers;
+
+			const leaveChannel = await this.accounts[phone].call('channels.leaveChannel', {
+				channel:{
+					_:'inputChannel',
+					channel_id: invite.chats[0].id,
+					access_hash: invite.chats[0].access_hash
+				}
+			})
+		}
+
+
+		// const deleteChat = await this.accounts[phone].call('messages.deleteChatUser', {
+		// 	revoke_history: true,
+		// 	chat_id:invite.chats[0].id,
+		// 	user_id: {
+		// 		_:'inputUserSelf'
+		// 	}
+		// })
+
+
+		const contactIds = chat_users.map(el=>el.id)
 
 		const contacts = []
 
@@ -101,7 +350,7 @@ class Spammer{
 
 			const oldContacts = result.map(el=>el.id)
 
-			for(const user of chat.users){
+			for(const user of chat_users){
 
 				if(oldContacts.includes(user.id)){
 					continue;
