@@ -415,6 +415,10 @@ class Spammer{
 
 		return new Promise(async resolve => {
 
+			if(this.accounts[account.phone]){
+				return resolve();
+			}
+
 			if(!this.accounts[account.phone]) {
 
 				this.accounts[account.phone] = new API(account)
