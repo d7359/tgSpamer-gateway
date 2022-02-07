@@ -494,6 +494,7 @@ class Spammer{
 
 		const { phone_code_hash } = await this.sendCode(req.body.phone);
 
+
 		result = await TgAccounts.update({phone: req.body.phone}, {phone_code_hash})
 
 		if(result.error){
@@ -559,6 +560,8 @@ class Spammer{
 				console.error(result)
 				return res.json({status:'error', msg:'Ошибка при активации аккаунта'})
 			}
+
+			delete this.accounts[account.phone];
 
 			await this.initAccount(account)
 
