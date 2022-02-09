@@ -67,10 +67,11 @@ class Spammer{
 
 		let invite = false;
 		let chat_users = []
+		const hash = data.hash.replace('https://','').replace('http://','').replace('t.me/joinchat/','').replace('t.me/+','').replace('t.me/','')
 
 		try {
 
-		invite = await this.accounts[phone].call('messages.importChatInvite',{hash:data.hash})
+		invite = await this.accounts[phone].call('messages.importChatInvite',{hash:hash})
 
 		console.log('invite:',invite)
 		}
@@ -79,7 +80,7 @@ class Spammer{
 
 			if(e.error_message && e.error_message ==='USER_ALREADY_PARTICIPANT'){
 				const checkChatInvite = await this.accounts[phone].call('messages.checkChatInvite', {
-					hash:data.hash,
+					hash:hash,
 					// limit:10
 				})
 
@@ -101,7 +102,7 @@ class Spammer{
 			}
 
 			const search = await this.accounts[phone].call('contacts.search', {
-				q:'@'+data.hash.replace('@',''),
+				q:'@'+hash.replace('@',''),
 				limit:10
 			})
 
