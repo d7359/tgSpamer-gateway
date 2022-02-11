@@ -63,22 +63,29 @@ class Spammer{
 			})
 	}
 
+	sleep(ms) {
+		return new Promise((resolve) => {
+			setTimeout(resolve, ms);
+		});
+	}
+
 	async parseContacts(phone, data, callback){
 
 		let invite = false;
 		let chat_users = []
 		const hash = data.hash.replace('https://','').replace('http://','').replace('t.me/joinchat/','').replace('t.me/+','').replace('t.me/','')
 
-		try {
+		// try {
 
 		invite = await this.accounts[phone].call('messages.importChatInvite',{hash:hash})
 
 		console.log('invite:',invite)
-		}
-		catch (e) {
-			console.log(e)
+		// }
+		// catch (e) {
+		// 	console.log(e)
+		if(invite.error_code){
 
-			if(e.error_message && e.error_message ==='USER_ALREADY_PARTICIPANT'){
+			if(invite.error_message && invite.error_message ==='USER_ALREADY_PARTICIPANT'){
 				const checkChatInvite = await this.accounts[phone].call('messages.checkChatInvite', {
 					hash:hash,
 					// limit:10
@@ -108,6 +115,10 @@ class Spammer{
 
 			console.log(search);
 
+			if(search.error_code){
+				return callback({status:'error', msg:'Ничего не найдено'})
+			}
+
 			if(search.chats.length===0){
 				return callback({status:'error', msg:'Ничего не найдено'})
 			}
@@ -134,7 +145,7 @@ class Spammer{
 
 			console.log(inputPeer)
 
-			const LIMIT_COUNT = 1000
+			const LIMIT_COUNT = 9999
 			let offset = 0;
 			const allMessages = [];
 
@@ -143,6 +154,13 @@ class Spammer{
 				add_offset: offset,
 				limit: LIMIT_COUNT,
 			});
+
+			if(history.error_code){
+				return callback({status:'error', msg:'Ничего не найдено'})
+			}
+
+
+			await this.sleep(1000)
 
 			while(history.messages.length>0){
 
@@ -155,6 +173,12 @@ class Spammer{
 					add_offset: offset,
 					limit: LIMIT_COUNT,
 				});
+
+				if(history.error_code){
+					history.messages = []
+				}
+
+				await this.sleep(1000)
 
 
 			}
@@ -254,6 +278,11 @@ class Spammer{
 				limit: LIMIT_COUNT,
 			});
 
+			if(history.error_code){
+				return callback({status:'error', msg:'Ничего не найдено'})
+			}
+			await this.sleep(1000)
+
 			// console.log(firstHistoryResult)
 
 			// const historyCount = firstHistoryResult.count;
@@ -273,6 +302,10 @@ class Spammer{
 					limit: LIMIT_COUNT,
 				});
 
+				if(history.error_code){
+					history.messages=[]
+				}
+				await this.sleep(1000)
 
 			}
 
@@ -584,6 +617,10 @@ class Spammer{
 					_: 'inputUserSelf',
 				},
 			});
+
+			if(user.error_code){
+				return null
+			}
 
 			return user;
 		} catch (error) {
