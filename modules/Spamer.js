@@ -145,7 +145,7 @@ class Spammer{
 
 			console.log(inputPeer)
 
-			const LIMIT_COUNT = 9999
+			const LIMIT_COUNT = 100
 			let offset = 0;
 			const allMessages = [];
 
@@ -268,7 +268,7 @@ class Spammer{
 
 			console.log(inputPeer)
 
-			const LIMIT_COUNT = 1000
+			const LIMIT_COUNT = 100
 			let offset = 0;
 			const allMessages = [];
 
