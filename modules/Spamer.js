@@ -215,6 +215,11 @@ class Spammer{
 				}
 
 				for(const message of allMessages){
+
+					if(!message.from_id || !message.from_id.user_id){
+						continue;
+					}
+
 					if(message._==='message'){
 						// console.log(message)
 
@@ -378,6 +383,11 @@ class Spammer{
 
 
 				for(const message of allMessages){
+
+					if(!message.from_id || !message.from_id.user_id){
+						continue;
+					}
+
 					if(message._==='message'){
 						// console.log(message)
 
