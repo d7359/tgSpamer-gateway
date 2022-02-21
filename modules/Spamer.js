@@ -190,7 +190,12 @@ class Spammer{
 
 				while(history.messages.length>0){
 
+					console.log('идет парсинг')
+
+
 					allMessages.push(...history.messages);
+
+					console.log('количество сообщений: '+allMessages.length)
 
 					offset+=LIMIT_COUNT
 
@@ -250,6 +255,8 @@ class Spammer{
 				// 	id:Object.values(users)
 				// })
 
+
+
 				let start =0
 				let end = 200
 				let peerUsers = Object.values(users).slice(start,end)
@@ -259,6 +266,8 @@ class Spammer{
 				let resultUsers =[]
 
 				while(peerUsers.length>0) {
+
+					console.log('идет получение хэшей контактов')
 
 					const getUsers = await this.accounts[phone].call('users.getUsers', {
 						id: Object.values(peerUsers)
