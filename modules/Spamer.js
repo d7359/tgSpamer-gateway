@@ -141,6 +141,8 @@ class Spammer{
 
 				console.log(search);
 
+
+
 				if(search.error_code){
 					return resolve({status:'error', msg:'Ничего не найдено'})
 				}
@@ -148,6 +150,14 @@ class Spammer{
 				if(search.chats.length===0){
 					return resolve({status:'error', msg:'Ничего не найдено'})
 				}
+
+				const searched = search.chats.find(el=>el.username===hash)
+
+				if(!searched){
+					return resolve({status:'error'})
+				}
+
+				// const user = searched
 
 				// const joinChannel = await this.accounts[phone].call('channels.joinChannel', {
 				// 	channel: {
@@ -165,8 +175,8 @@ class Spammer{
 					// _: 'inputPeerChannel',
 					_: 'inputPeerChannel',
 					// channel_id: channel.id,
-					channel_id: search.chats[0].id,
-					access_hash: search.chats[0].access_hash
+					channel_id: searched.id,
+					access_hash: searched.access_hash
 				};
 
 				console.log(inputPeer)
