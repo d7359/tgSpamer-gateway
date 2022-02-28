@@ -828,19 +828,67 @@ class Spammer{
 			return async.eachSeries(tasks, (task, taskCallback)=>{
 					(async ()=>{
 
-						const contacts = await TgContacts.getAllByCondition({id:task.data.user.id, tg_account:task.data.phone})
-
-						console.log(contacts)
-
-						task.data.user.access_hash = contacts[0].access_hash
-
-						let d = await this.sendMessage(task.data)
-
 						const callbackTask = {
 							data:task.data,
 							execute_time: moment().format('YYYY-MM-DD HH:mm:ss')
 						}
 						callbackTask.data.type = 'status'
+
+						if(task.data.user.imported){
+							const importContact = await this.importContact(task.data.user, task.data.phone)
+
+							if(importContact.status==='error'){
+								callbackTask.sent = false
+								failure_ids.push(task._id.toString())
+
+								callbackTasks.push(callbackTask)
+
+								return setTimeout(()=>{taskCallback()})
+							}
+						}
+
+						const contacts = await TgContacts.getAllByCondition({id:task.data.user.id, tg_account:task.data.phone})
+
+						console.log("contacts:")
+						console.log(contacts)
+
+						if((!contacts || !contacts[0] || !contacts[0].access_hash) && !task.data.user.username){
+							callbackTask.sent = false
+							failure_ids.push(task._id.toString())
+
+							callbackTasks.push(callbackTask)
+
+							return setTimeout(()=>{taskCallback()})
+						}
+
+
+						if((!contacts || !contacts[0] || !contacts[0].access_hash) && task.data.user.username){
+							const importContact = await this.importContact(task.data.user, task.data.phone)
+
+							console.log("importContact:")
+							console.log(importContact)
+
+							if(importContact.status==='error'){
+								callbackTask.sent = false
+								failure_ids.push(task._id.toString())
+
+								callbackTasks.push(callbackTask)
+
+								return setTimeout(()=>{taskCallback()})
+							}
+
+							task.data.user.access_hash = importContact.contact.access_hash
+						}
+
+
+
+						if(contacts && contacts[0] && contacts[0].access_hash) {
+							task.data.user.access_hash = contacts[0].access_hash
+						}
+
+						let d = await this.sendMessage(task.data)
+
+
 
 						if(d.status==='ok'){
 							callbackTask.sent = true
@@ -879,6 +927,103 @@ class Spammer{
 
 		})
 	}
+
+	async importContact(contact, phone){
+		return new Promise(async resolve=>{
+
+			try{
+
+				if(contact.username){
+					const search = await this.accounts[phone].call('contacts.search', {
+						q:'@'+contact.username,
+						limit:30
+					})
+
+
+					console.log(search);
+
+					await this.sleep(1000)
+
+					if(search.users===0) {
+
+						return resolve({status:'error'})
+					}
+
+					const searched = search.users.find(el=>el.username===contact.username)
+
+					if(!searched){
+						return resolve({status:'error'})
+					}
+
+					const user = searched
+
+					const newContact = {
+						id:user.id,
+						access_hash:user.access_hash,
+						first_name:user.first_name || '',
+						last_name:user.last_name || '',
+						username:user.username || '',
+						phone:user.phone || '',
+						tg_account:phone
+					}
+
+					return TgContacts.create(newContact, result=>{
+						return resolve({status:'ok',contact: newContact})
+					})
+				}
+
+				const importContact = await this.accounts[phone].call('contacts.importContacts', {
+					// _:'inputPhoneContact',
+					contacts:[{
+						_         : 'inputPhoneContact',
+						// 		client_id : Math.ceil(Math.random() * 0xffffff) + Math.ceil(Math.random() * 0xffffff),
+						client_id : contact.id,
+						first_name: contact.first_name || '',
+						last_name : contact.last_name || '',
+						phone     : contact.phone ? contact.phone.replace('+', '') : ''
+					}]
+				})
+
+				console.log('importContact')
+				console.log(importContact)
+
+				await this.sleep(1000)
+
+				if(importContact.error_code){
+					return resolve({status:'error'})
+				}
+
+				let user;
+				if(importContact.users.length>0) {
+					user = importContact.users[0];
+				}
+
+				const newContact = {
+					id:user.id,
+					access_hash:user.access_hash,
+					first_name:user.first_name || '',
+					last_name:user.last_name || '',
+					username:user.username || '',
+					phone:user.phone || '',
+					tg_account:phone
+				}
+
+				return TgContacts.create(newContact, result=>{
+					return resolve({status:'ok', contact: newContact})
+				})
+
+
+			}
+			catch(e){
+				console.log(e)
+
+				resolve({status:'error'})
+			}
+
+
+		})
+	}
+
 
 	executeCallbackTasks(tasks){
 		return new Promise(resolve=>{
