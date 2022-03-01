@@ -803,7 +803,7 @@ class Spammer{
 
 		await this.executeSendTasks(tasks)
 
-		this.checkSendTasks()
+		return setTimeout(()=>{this.checkSendTasks()}, 3000)
 
 	}
 
@@ -853,7 +853,7 @@ class Spammer{
 
 								callbackTasks.push(callbackTask)
 
-								return setTimeout(()=>{taskCallback()})
+								return setTimeout(()=>{taskCallback()}, 1000)
 							}
 						}
 
@@ -868,7 +868,7 @@ class Spammer{
 
 							callbackTasks.push(callbackTask)
 
-							return setTimeout(()=>{taskCallback()})
+							return setTimeout(()=>{taskCallback()}, 1000)
 						}
 
 
@@ -884,7 +884,7 @@ class Spammer{
 
 								callbackTasks.push(callbackTask)
 
-								return setTimeout(()=>{taskCallback()})
+								return setTimeout(()=>{taskCallback()}, 1000)
 							}
 
 							task.data.user.access_hash = importContact.contact.access_hash
@@ -911,7 +911,7 @@ class Spammer{
 
 						callbackTasks.push(callbackTask)
 
-						return setTimeout(()=>{taskCallback()})
+						return setTimeout(()=>{taskCallback()}, 1000)
 					})();
 				},
 				err=>{
@@ -1089,17 +1089,19 @@ class Spammer{
 					user_id: data.user.id,
 					access_hash: data.user.access_hash
 				},
-				first_name:	data.user.first_name || '',
+				first_name:	data.user.first_name || 'Тест',
 				last_name:	data.user.last_name || '',
 				phone:	data.user.phone ||''
 			})
+
+			await this.sleep(1000)
 
 			console.log({
 				id	:{_: 'inputUser',
 					user_id: data.user.id,
 					access_hash: data.user.access_hash
 				},
-				first_name:	data.user.first_name || '',
+				first_name:	data.user.first_name || 'Тест',
 				last_name:	data.user.last_name || '',
 				phone:	data.user.phone ||''
 		})
