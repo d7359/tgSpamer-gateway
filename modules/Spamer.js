@@ -496,6 +496,7 @@ class Spammer{
 			const contactIds = chat_users.map(el=>el.id)
 
 			const contacts = []
+			const allContacts = []
 
 			return TgContacts.getAllByCondition({id:{$in:contactIds}, tg_account:phone}, result=>{
 
@@ -504,6 +505,16 @@ class Spammer{
 				const oldContacts = result.map(el=>el.id)
 
 				for(const user of chat_users){
+
+					allContacts.push({
+						id:user.id,
+						access_hash:user.access_hash,
+						first_name:user.first_name || '',
+						last_name:user.last_name || '',
+						username:user.username || '',
+						phone:user.phone || '',
+						tg_account:phone
+					})
 
 					if(oldContacts.includes(user.id)){
 						continue;
@@ -527,7 +538,7 @@ class Spammer{
 
 					console.log(result)
 
-					return resolve({status: 'ok', contacts})
+					return resolve({status: 'ok', contacts:allContacts})
 				})
 
 			})
