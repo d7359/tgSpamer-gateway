@@ -203,9 +203,53 @@ class Spammer{
 					console.log('идет парсинг')
 
 
-					allMessages.push(...history.messages);
+					// allMessages.push(...history.messages);
 
-					console.log('количество сообщений: '+allMessages.length)
+					// console.log('количество сообщений: '+allMessages.length)
+
+					for(const message of history.messages){
+
+						if(!message.from_id || !message.from_id.user_id){
+							continue;
+						}
+
+						if(message._==='message'){
+							// console.log(message)
+
+							users[message.from_id.user_id] = {
+								_:'inputUserFromMessage',
+								peer: inputPeer,
+								msg_id: message.id,
+								user_id: message.from_id.user_id
+							}
+						}
+
+
+						if(message._==='messageService' && message.action && message.action._==='messageActionChatAddUser'){
+							// console.log(message)
+
+							users[message.from_id.user_id] = {
+								_:'inputUserFromMessage',
+								peer: inputPeer,
+								msg_id: message.id,
+								user_id: message.from_id.user_id
+							}
+						}
+
+
+						if(message._==='messageService' && message.action && message.action._==='messageActionChatJoinedByLink'){
+							// console.log(message)
+
+							users[message.from_id.user_id] = {
+								_:'inputUserFromMessage',
+								peer: inputPeer,
+								msg_id: message.id,
+								user_id: message.from_id.user_id
+							}
+						}
+					}
+
+					console.log('количество контактов: '+Object.keys(users).length)
 
 					offset+=LIMIT_COUNT
 
@@ -224,55 +268,55 @@ class Spammer{
 
 				}
 
-				let counter = 0;
-
-				for(const message of allMessages){
-
-					counter++
-
-					if(counter%1000===0){
-						await this.sleep(100)
-					}
-
-					if(!message.from_id || !message.from_id.user_id){
-						continue;
-					}
-
-					if(message._==='message'){
-						// console.log(message)
-
-						users[message.from_id.user_id] = {
-							_:'inputUserFromMessage',
-							peer: inputPeer,
-							msg_id: message.id,
-							user_id: message.from_id.user_id
-						}
-					}
-
-
-					if(message._==='messageService' && message.action && message.action._==='messageActionChatAddUser'){
-						// console.log(message)
-
-						users[message.from_id.user_id] = {
-							_:'inputUserFromMessage',
-							peer: inputPeer,
-							msg_id: message.id,
-							user_id: message.from_id.user_id
-						}
-					}
-
-
-					if(message._==='messageService' && message.action && message.action._==='messageActionChatJoinedByLink'){
-						// console.log(message)
-
-						users[message.from_id.user_id] = {
-							_:'inputUserFromMessage',
-							peer: inputPeer,
-							msg_id: message.id,
-							user_id: message.from_id.user_id
-						}
-					}
-				}
+				// let counter = 0;
+				//
+				// for(const message of allMessages){
+				//
+				// 	counter++
+				//
+				// 	if(counter%1000===0){
+				// 		await this.sleep(100)
+				// 	}
+				//
+				// 	if(!message.from_id || !message.from_id.user_id){
+				// 		continue;
+				// 	}
+				//
+				// 	if(message._==='message'){
+				// 		// console.log(message)
+				//
+				// 		users[message.from_id.user_id] = {
+				// 			_:'inputUserFromMessage',
+				// 			peer: inputPeer,
+				// 			msg_id: message.id,
+				// 			user_id: message.from_id.user_id
+				// 		}
+				// 	}
+				//
+				//
+				// 	if(message._==='messageService' && message.action && message.action._==='messageActionChatAddUser'){
+				// 		// console.log(message)
+				//
+				// 		users[message.from_id.user_id] = {
+				// 			_:'inputUserFromMessage',
+				// 			peer: inputPeer,
+				// 			msg_id: message.id,
+				// 			user_id: message.from_id.user_id
+				// 		}
+				// 	}
+				//
+				//
+				// 	if(message._==='messageService' && message.action && message.action._==='messageActionChatJoinedByLink'){
+				// 		// console.log(message)
+				//
+				// 		users[message.from_id.user_id] = {
+				// 			_:'inputUserFromMessage',
+				// 			peer: inputPeer,
+				// 			msg_id: message.id,
+				// 			user_id: message.from_id.user_id
+				// 		}
+				// 	}
+				// }
 
 				// const getUsers = await this.accounts[phone].call('users.getUsers', {
 				// 	id:Object.values(users)
