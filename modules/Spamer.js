@@ -169,7 +169,7 @@ class Spammer{
 				//
 				// console.log('chat:', joinChannel)
 
-				const users = {}
+				let users = {}
 
 				const inputPeer = {
 					// _: 'inputPeerChannel',
@@ -361,6 +361,8 @@ class Spammer{
 				console.log(resultUsers.length);
 
 				chat_users = resultUsers
+
+				users = {}
 
 				// const leaveChannel = await this.accounts[phone].call('channels.leaveChannel', {
 				// 	channel:{
