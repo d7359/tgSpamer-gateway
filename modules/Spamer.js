@@ -209,7 +209,7 @@ class Spammer{
 
 					for(const message of history.messages){
 
-						if(!message.from_id || !message.from_id.user_id){
+						if(!message.from_id || !message.from_id.user_id || !message.id){
 							continue;
 						}
 
