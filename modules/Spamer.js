@@ -364,6 +364,8 @@ class Spammer{
 
 				users = {}
 
+				await this.sleep(this.getRandomInRange(1000,2000))
+
 				// const leaveChannel = await this.accounts[phone].call('channels.leaveChannel', {
 				// 	channel:{
 				// 		_:'inputChannel',
@@ -598,6 +600,10 @@ class Spammer{
 			})
 		})
 
+	}
+
+	getRandomInRange(min, max) {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
 
 	async getAccounts(){
