@@ -224,7 +224,15 @@ class Spammer{
 
 				}
 
+				let counter = 0;
+
 				for(const message of allMessages){
+
+					counter++
+
+					if(counter%1000===0){
+						await this.sleep(100)
+					}
 
 					if(!message.from_id || !message.from_id.user_id){
 						continue;
