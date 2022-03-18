@@ -553,7 +553,7 @@ class Spammer{
 			// })
 
 
-			const contactIds = chat_users.map(el=>el.id)
+			let contactIds = chat_users.map(el=>el.id)
 
 			const contacts = []
 			const allContacts = []
@@ -563,7 +563,9 @@ class Spammer{
 
 				console.log(result)
 
-				const oldContacts = result.map(el=>el.id)
+				contactIds = []
+
+				let oldContacts = result.map(el=>el.id)
 
 				let counter = 0
 
@@ -612,6 +614,7 @@ class Spammer{
 				}
 
 				chat_users = []
+				oldContacts = []
 
 				return TgContacts.createMany(contacts, result=>{
 
