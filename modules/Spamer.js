@@ -336,11 +336,15 @@ class Spammer{
 
 					console.log('идет получение хэшей контактов')
 
-					const getUsers = await this.accounts[phone].call('users.getUsers', {
+					let getUsers = await this.accounts[phone].call('users.getUsers', {
 						id: Object.values(peerUsers)
 					})
 
 					await this.sleep(1000)
+
+					if(getUsers.error_code){
+						getUsers = []
+					}
 
 					console.log(getUsers.length);
 
