@@ -611,6 +611,8 @@ class Spammer{
 
 				}
 
+				chat_users = []
+
 				return TgContacts.createMany(contacts, result=>{
 
 
