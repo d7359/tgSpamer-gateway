@@ -31,7 +31,7 @@ class Spammer{
 		let contacts = []
 
 
-		return Promise.all(Object.keys(this.accounts).map(async phone => await this.parseContacts(phone, req.body, ()=>{})))
+		return Promise.all(Object.keys(this.accounts).map(async (phone,index) => await this.parseContacts(phone, req.body,index, ()=>{})))
 			.then(values=>{
 
 				console.log(values)
@@ -95,8 +95,11 @@ class Spammer{
 		});
 	}
 
-	async parseContacts(phone, data, callback){
+	async parseContacts(phone, data, index, callback){
 		return new Promise(async resolve=>{
+
+			this.sleep(index*10000)
+
 			let invite = false;
 			let chat_users = []
 			const hash = data.hash.replace('https://','').replace('http://','').replace('t.me/joinchat/','').replace('t.me/+','').replace('t.me/','')
@@ -567,6 +570,8 @@ class Spammer{
 
 				let oldContacts = result.map(el=>el.id)
 
+				result = null;
+
 				let counter = 0
 
 				for(const user of chat_users){
@@ -620,6 +625,8 @@ class Spammer{
 
 
 					console.log(result)
+
+					result = null;
 
 					return resolve({status: 'ok', contacts:[...contacts, ...oldContactsArray]})
 				})
