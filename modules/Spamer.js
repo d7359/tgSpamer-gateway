@@ -351,7 +351,7 @@ class Spammer{
 						id: Object.values(peerUsers)
 					})
 
-					await this.sleep(1000)
+
 
 					if(getUsers.error_code){
 						getUsers = []
@@ -359,7 +359,82 @@ class Spammer{
 
 					console.log(getUsers.length);
 
-					resultUsers = [...resultUsers, ...getUsers]
+					// resultUsers = [...resultUsers, ...getUsers]
+
+
+					// if(index===0){
+					// contactIds = chat_users.map(el=>el.id)
+					// }
+
+					let contactIds = getUsers.map(el=>el.id)
+
+					let contacts = []
+					// const allContacts = []
+					// const oldContactsArray = []
+
+				   let result = await TgContacts.getAllByCondition({id:{$in:this.contactIds}, tg_account:phone})
+
+					console.log(result)
+
+					contactIds = []
+
+					let oldContacts = result.map(el=>el.id)
+
+					result = null;
+
+					// let counter = 0
+
+					for(const user of getUsers){
+
+						// counter++
+						//
+						// if(counter%1000===0){
+						// 	await this.sleep(this.getRandomInRange(1000, 2000))
+						// }
+
+						if(index===0){
+							this.parsedContacts.push(
+								{
+									id:user.id,
+									access_hash:user.access_hash,
+									first_name:user.first_name || '',
+									last_name:user.last_name || '',
+									username:user.username || '',
+									phone:user.phone || '',
+									tg_account:phone
+								}
+							)
+						}
+
+						if(oldContacts.includes(user.id)){
+							continue;
+						}
+
+						contacts.push({
+							id:user.id,
+							access_hash:user.access_hash,
+							first_name:user.first_name || '',
+							last_name:user.last_name || '',
+							username:user.username || '',
+							phone:user.phone || '',
+							tg_account:phone
+						})
+
+
+					}
+
+					chat_users = []
+					oldContacts = []
+
+					result = await TgContacts.createMany(contacts)
+
+
+					console.log(result)
+
+					result = null;
+					contacts = []
+
+						// return resolve({status: 'ok', contacts:[...contacts, ...oldContactsArray]})
 
 					start+=200
 					end+=200
@@ -369,9 +444,15 @@ class Spammer{
 
 					console.log('peerUsers:', peerUsers.length)
 
+					await this.sleep(1000)
+
 
 
 				}
+
+				users = {}
+
+				return resolve({status: 'ok'})
 
 				console.log(resultUsers.length);
 
