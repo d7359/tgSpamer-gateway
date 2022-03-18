@@ -15,6 +15,10 @@ class Spammer{
 		this.accounts = {
 
 		}
+
+		this.parsedContacts = []
+		this.contactIds = []
+		this.oldContacts = []
 	}
 
 	async initSpammer(){
@@ -43,9 +47,13 @@ class Spammer{
 					url:'http://'+config.ip+':3024/save_contacts',
 					method:'POST',
 					headers:{'Content-Type':'application/json'},
-					body:JSON.stringify({contacts: values[0].contacts, parsingId:req.body.parsingId, project:req.body.project})
+					// body:JSON.stringify({contacts: values[0].contacts, parsingId:req.body.parsingId, project:req.body.project})
+					body:JSON.stringify({contacts: this.parsedContacts, parsingId:req.body.parsingId, project:req.body.project})
 				}, (error,  httpResponse, body)=>{
 					console.error(error)
+					this.parsedContacts = []
+					this.contactIds = []
+					this.oldContacts = []
 					// console.log(httpResponse)
 					console.log(body)
 
@@ -556,17 +564,21 @@ class Spammer{
 			// })
 
 
+			if(this.contactIds.length===0){
+				this.contactIds = chat_users.map(el=>el.id)
+			}
+
 			let contactIds = chat_users.map(el=>el.id)
 
-			const contacts = []
+			let contacts = []
 			const allContacts = []
 			const oldContactsArray = []
 
-			return TgContacts.getAllByCondition({id:{$in:contactIds}, tg_account:phone}, async result=>{
+			return TgContacts.getAllByCondition({id:{$in:this.contactIds}, tg_account:phone}, async result=>{
 
 				console.log(result)
 
-				contactIds = []
+				// contactIds = []
 
 				let oldContacts = result.map(el=>el.id)
 
@@ -582,6 +594,20 @@ class Spammer{
 						await this.sleep(this.getRandomInRange(1000, 2000))
 					}
 
+					if(index===0){
+						this.parsedContacts.push(
+							{
+								id:user.id,
+								access_hash:user.access_hash,
+								first_name:user.first_name || '',
+								last_name:user.last_name || '',
+								username:user.username || '',
+								phone:user.phone || '',
+								tg_account:phone
+							}
+						)
+					}
+
 					// allContacts.push({
 					// 	id:user.id,
 					// 	access_hash:user.access_hash,
@@ -593,15 +619,15 @@ class Spammer{
 					// })
 
 					if(oldContacts.includes(user.id)){
-						oldContactsArray.push({
-							id:user.id,
-							access_hash:user.access_hash,
-							first_name:user.first_name || '',
-							last_name:user.last_name || '',
-							username:user.username || '',
-							phone:user.phone || '',
-							tg_account:phone
-						})
+						// oldContactsArray.push({
+						// 	id:user.id,
+						// 	access_hash:user.access_hash,
+						// 	first_name:user.first_name || '',
+						// 	last_name:user.last_name || '',
+						// 	username:user.username || '',
+						// 	phone:user.phone || '',
+						// 	tg_account:phone
+						// })
 						continue;
 					}
 
@@ -627,8 +653,10 @@ class Spammer{
 					console.log(result)
 
 					result = null;
+					contacts = []
 
-					return resolve({status: 'ok', contacts:[...contacts, ...oldContactsArray]})
+					// return resolve({status: 'ok', contacts:[...contacts, ...oldContactsArray]})
+					return resolve({status: 'ok'})
 				})
 
 			})
