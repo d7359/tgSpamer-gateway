@@ -553,26 +553,44 @@ class Spammer{
 
 			const contacts = []
 			const allContacts = []
+			const oldContactsArray = []
 
-			return TgContacts.getAllByCondition({id:{$in:contactIds}, tg_account:phone}, result=>{
+			return TgContacts.getAllByCondition({id:{$in:contactIds}, tg_account:phone}, async result=>{
 
 				console.log(result)
 
 				const oldContacts = result.map(el=>el.id)
 
+				let counter = 0
+
 				for(const user of chat_users){
 
-					allContacts.push({
-						id:user.id,
-						access_hash:user.access_hash,
-						first_name:user.first_name || '',
-						last_name:user.last_name || '',
-						username:user.username || '',
-						phone:user.phone || '',
-						tg_account:phone
-					})
+					counter++
+
+					if(counter%1000===0){
+						await this.sleep(this.getRandomInRange(1000, 2000))
+					}
+
+					// allContacts.push({
+					// 	id:user.id,
+					// 	access_hash:user.access_hash,
+					// 	first_name:user.first_name || '',
+					// 	last_name:user.last_name || '',
+					// 	username:user.username || '',
+					// 	phone:user.phone || '',
+					// 	tg_account:phone
+					// })
 
 					if(oldContacts.includes(user.id)){
+						oldContactsArray.push({
+							id:user.id,
+							access_hash:user.access_hash,
+							first_name:user.first_name || '',
+							last_name:user.last_name || '',
+							username:user.username || '',
+							phone:user.phone || '',
+							tg_account:phone
+						})
 						continue;
 					}
 
@@ -594,7 +612,7 @@ class Spammer{
 
 					console.log(result)
 
-					return resolve({status: 'ok', contacts:allContacts})
+					return resolve({status: 'ok', contacts:[...contacts, ...oldContactsArray]})
 				})
 
 			})
