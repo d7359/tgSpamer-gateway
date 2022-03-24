@@ -525,6 +525,7 @@ class Spammer{
 
 				// for (let offset = 0; offset < historyCount; offset += LIMIT_COUNT) {
 				while(history.messages.length>0){
+					console.log('идет парсинг')
 
 					allMessages.push(...history.messages);
 
@@ -546,7 +547,7 @@ class Spammer{
 
 				for(const message of allMessages){
 
-					if(!message.from_id || !message.from_id.user_id){
+					if(!message.from_id || !message.from_id.user_id || !message.id){
 						continue;
 					}
 
@@ -597,14 +598,21 @@ class Spammer{
 				console.log('peerUsers:', peerUsers.length)
 
 				let resultUsers =[]
+				let getUsers = []
 
 				while(peerUsers.length>0) {
 
-					const getUsers = await this.accounts[phone].call('users.getUsers', {
+					console.log('идет получение хэшей')
+
+					getUsers = await this.accounts[phone].call('users.getUsers', {
 						id: Object.values(peerUsers)
 					})
 
 					await this.sleep(1000)
+
+					if(getUsers.error_code){
+						getUsers = []
+					}
 
 					console.log(getUsers.length);
 
